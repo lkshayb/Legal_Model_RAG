@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+
+# VS Code
+.vscode/
+
+# RAG / AI generated data
+vectorstore/
+cleaned_text/
+data/
+./data
+
+# HuggingFace / cache
+.cache/
+models/
+*.bin
+*.safetensors
+
+# Env / secrets
+.env
+
+# OS
+.DS_Store
+Thumbs.db
