@@ -14,19 +14,26 @@ def retrieve_context(query, k=4):
     return "\n\n".join([f"[{d.metadata['source']}]\n{d.page_content}" for d in docs])
 
 
+def askQuestion(query):
+    context = retrieve_context(query)
+    answer = generate_answer(context, query)
+    return {
+        "context":context,
+        "answer":answer
+    }
 
-if __name__ == "__main__":
-    while True:
-        query = input("\nAsk a legal question (or type 'exit'): ")
-        if query.lower() == "exit":
-            break
+# if __name__ == "__main__":
+#     while True:
+#         query = input("\nAsk a legal question (or type 'exit'): ")
+#         if query.lower() == "exit":
+#             break
 
-        context= retrieve_context(query)
-        print("\nRetrieved Context ==>\n")
-        print(context)
-        print("\n")
+#         context= retrieve_context(query)
+#         print("\nRetrieved Context ==>\n")
+#         print(context)
+#         print("\n")
 
-        answer = generate_answer(context, query)
+#         answer = generate_answer(context, query)
 
-        print("\nAnswer :")
-        print(answer)
+#         print("\nAnswer :")
+#         print(answer)
