@@ -10,9 +10,9 @@ vectorstore = FAISS.load_local("vectorstore",embeddings,allow_dangerous_deserial
 
 #searching the vectorestore for generation
 def retrieve_context(query, k=4):
-    docs = vectorstore.similarity_search(query, k=k)
-    return "\n\n".join([f"[{d.metadata['source']}]\n{d.page_content}" for d in docs])
-
+    docs = vectorstore.similarity_search(query, k=4)
+    context = "\n\n".join([doc.page_content for doc in docs[:2]])
+    return context
 
 def askQuestion(query):
     context = retrieve_context(query)
@@ -22,18 +22,18 @@ def askQuestion(query):
         "answer":answer
     }
 
-# if __name__ == "__main__":
-#     while True:
-#         query = input("\nAsk a legal question (or type 'exit'): ")
-#         if query.lower() == "exit":
-#             break
+if __name__ == "__main__":
+    while True:
+        query = input("\nAsk a legal question (or type 'exit'): ")
+        if query.lower() == "exit":
+            break
 
-#         context= retrieve_context(query)
-#         print("\nRetrieved Context ==>\n")
-#         print(context)
-#         print("\n")
+        context= retrieve_context(query)
+        print("\nRetrieved Context ==>\n")
+        print(context)
+        print("\n")
 
-#         answer = generate_answer(context, query)
+        answer = generate_answer(context, query)
 
-#         print("\nAnswer :")
-#         print(answer)
+        print("\nAnswer :")
+        print(answer)

@@ -1,16 +1,26 @@
 import re
 
-def clean_text(txt):
-    txt = re.sub(r"\n+","\n",txt)
-    txt = re.sub(r"Page \d+","",txt)
-    return txt
+with open("./cleaned_text/bns.txt", "r", encoding="utf-8") as f:
+    text = f.read()
 
+sections = re.split(r"\n(\d+\.)", text)
 
+documents = []
 
+for i in range(1, len(sections), 2):
+    section_number = sections[i].replace(".", "")
+    section_text = sections[i+1]
 
-if __name__ == "__main__":
-    with open("./cleaned_text/bns.txt","r", encoding="utf-8") as f: raw_text = f.read()
-    cleaned = clean_text(raw_text)
+    doc = f"""
+Act: Bharatiya Nyaya Sanhita
+Section: {section_number}
 
-    with open("./cleaned_text/bns.txt","w", encoding='utf-8') as f: f.write(cleaned)
-    print("cleaning of the file is now completed")
+Text:
+{section_text.strip()}
+"""
+
+    documents.append(doc)
+
+with open("./cleaned_text/bns.txt", "w", encoding="utf-8") as f:
+    for d in documents:
+        f.write(d + "\n\n---\n\n")

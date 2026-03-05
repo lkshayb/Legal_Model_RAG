@@ -2,20 +2,47 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
+import re
+from langchain_core.documents import Document
 
 def load_text(path):
     with open(path, "r", encoding="utf-8") as f: return f.read()
 
-constitution_text = load_text("./cleaned_text/constitution.txt")
+# constitution_text = load_text("./cleaned_text/constitution.txt")
 bns_text = load_text("./cleaned_text/bns.txt")
 
 #we break the txt into parts for ease
 text_splitter = RecursiveCharacterTextSplitter(chunk_size=500,chunk_overlap=5) 
-constitution_docs = text_splitter.create_documents([constitution_text],metadatas=[{"source": "Indian Constitution"}])
+# constitution_docs = text_splitter.create_documents([constitution_text],metadatas=[{"source": "Indian Constitution"}])
 bns_docs = text_splitter.create_documents([bns_text],metadatas=[{"source": "Bharatiya Nyaya Sanhita"}])
+##
+sections = re.split(r"(?=\b\d{1,3}\.\s)", bns_text)
+bns_docs = []
+for section in sections:
+    match = re.match(r"(\d+)\.", section.strip())
+    
+    if match:
+        section_number = match.group(1)
 
+        doc = Document(
+            page_content=f"""
+Act: Bharatiya Nyaya Sanhita
+Section: {section_number}
+
+Text:
+{section.strip()}
+""",
+            metadata={
+                "source": "Bharatiya Nyaya Sanhita",
+                "section": section_number
+            }
+        )
+
+        bns_docs.append(doc)
+##
+    
 #final document
-documents = constitution_docs + bns_docs
+documents = bns_docs
 
 print(f"No. of chunks parted from text : {len(documents)}")
 
