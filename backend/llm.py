@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 #Using phi-2 from microsoft as it is a light weight model and can be used on low end GPUs
-MODEL_ID = "microsoft/phi-2"
+MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
 
 #Configuration for the quantization of the model for my GPU level
 bnb_config = BitsAndBytesConfig(
@@ -27,29 +27,22 @@ def generate_answer(context, question):
     prompt = f"""
 You are an assistant for Indian legal research.
 
+Use ONLY the information in the CONTEXT to answer the question.
+
 Rules:
-1. Answer ONLY using the legal text provided in the CONTEXT.
-2. Do NOT use outside knowledge or make assumptions.
-3. Do NOT invent laws, Act names, or Section numbers.
-4. If citing a law, copy the Act name and Section number exactly from the context.
-5. If the answer is not present in the context, respond exactly with:
+- Do NOT copy the legal text verbatim.
+- Summarize the law in simple words.
+- Only mention laws that appear in the CONTEXT.
+- Copy the Act name and Section number exactly as written.
+- If the answer is not present in the CONTEXT, say:
 "No authoritative legal provision found in the provided material."
-6. Summarize the law briefly. Do NOT copy large blocks of the context.
-7. Do NOT generate follow-up questions, examples, or extra commentary.
+Return the answer in EXACTLY this format:
 
-Format your answer exactly like this:
+Legal Issue: <short description>
 
-Legal Issue:
-(short description)
+Applicable Law: <Act name – Section number>
 
-Applicable Law:
-Act Name – Section Number
-
-Legal Position:
-(brief explanation of what the law states)
-
-Limitations:
-(if the context does not fully answer the question)
+Legal Position: <brief explanation of the law in simple words>
 
 CONTEXT:
 {context}
@@ -66,7 +59,10 @@ ANSWER:
     output = model.generate(
         **inputs,
         max_new_tokens=200,
-        do_sample=False
+        do_sample=False,
+        repetition_penalty=1.2,
+        # eos_token_id=tokenizer.eos_token_id,
+        # pad_token_id=tokenizer.eos_token_id
     )
-
-    return tokenizer.decode(output[0], skip_special_tokens=True)
+    generated_tokens = output[0]
+    return tokenizer.decode(generated_tokens, skip_special_tokens=True)

@@ -19,7 +19,7 @@ bns_docs = text_splitter.create_documents([bns_text],metadatas=[{"source": "Bhar
 sections = re.split(r"(?=\b\d{1,3}\.\s)", bns_text)
 bns_docs = []
 for section in sections:
-    match = re.match(r"(\d+)\.", section.strip())
+    match = re.search(r"\b(\d{1,3})\.", section)
     
     if match:
         section_number = match.group(1)
