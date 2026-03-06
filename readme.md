@@ -1,0 +1,1 @@
+A RAG based legal chatbot that answers questions related to Indian law using authoritative legal texts.The system retrieves the most relevant legal provisions from a vector database and uses a lightweight local language model to generate structured legal responses.
