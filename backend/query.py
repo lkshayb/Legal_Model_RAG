@@ -4,10 +4,9 @@ from llm import generate_answer
 from Cases import Cases
 import pandas as pd
 import time
+import json
 
-# -------------------------------
-# LOAD EMBEDDINGS + VECTORSTORE
-# -------------------------------
+#LOAD EMBEDDINGS, VECTORSTORE :
 embeddings = HuggingFaceEmbeddings(
     model_name="sentence-transformers/all-MiniLM-L6-v2"
 )
@@ -18,16 +17,12 @@ vectorstore = FAISS.load_local(
     allow_dangerous_deserialization=True
 )
 
-# -------------------------------
-# RETRIEVAL
-# -------------------------------
+# RETRIEVAL of context through RAG
 def retrieve_context(query, k=4):
     docs = vectorstore.similarity_search(query, k=k)
     return "\n\n".join([doc.page_content for doc in docs[:2]])
 
-# -------------------------------
-# CORE PIPELINE (USED EVERYWHERE)
-# -------------------------------
+#core pipeline
 def askQuestion(query):
     context = retrieve_context(query)
     answer = generate_answer(context, query)
@@ -36,21 +31,15 @@ def askQuestion(query):
         "answer": answer
     }
 
-# -------------------------------
-# FIELD EXTRACTION (for evaluation)
-# -------------------------------
-import json
+
+#for eval mode
+
 
 def clean_output(output):
-    # Remove prompt if repeated
     if "ANSWER:" in output:
         output = output.split("ANSWER:")[-1]
-
-    # Remove everything before first {
     if "{" in output:
         output = output[output.index("{"):]
-
-    # Remove trailing garbage after last }
     if "}" in output:
         output = output[:output.rindex("}")+1]
 
@@ -58,7 +47,7 @@ def clean_output(output):
 
 def extract_fields(output):
     try:
-        # Try direct JSON parse
+        # trying direct JSON parse
         data = json.loads(output)
         return {
             "legal_issue": data.get("Legal Issue", ""),
@@ -69,18 +58,17 @@ def extract_fields(output):
             "confidence": data.get("Confidence", "")
         }
     except:
-        # fallback (if JSON fails)
+        # fallback/eHandleing
         return {
             "legal_issue": "",
             "law": "",
-            "analysis": output[:500],  # keep partial for debugging
+            "analysis": output[:500], 
             "ethical": "",
             "final_judgment": "",
             "confidence": ""
         }
-# -------------------------------
-# EVALUATION MODE (NEW)
-# -------------------------------
+
+#eval mode
 def run_evaluation():
     results = []
 
@@ -105,7 +93,6 @@ def run_evaluation():
 
             results.append(row)
 
-            # SAVE AFTER EACH CASE (IMPORTANT)
             df = pd.DataFrame(results)
             df["accuracy"] = ""
             df["reasoning_score"] = ""
@@ -121,9 +108,7 @@ def run_evaluation():
 
     print("\n✅ Evaluation complete. Saved to legal_eval_results.csv")
 
-# -------------------------------
-# MAIN ENTRY
-# -------------------------------
+
 if __name__ == "__main__":
     mode = input("Choose mode (chat / eval): ").strip().lower()
 
