@@ -25,24 +25,51 @@ model = AutoModelForCausalLM.from_pretrained(
 #dfl prompt for the model to answer the queries
 def generate_answer(context, question):
     prompt = f"""
-You are an assistant for Indian legal research.
+You are an AI legal assistant evaluating a legal case based strictly on Indian law.
 
-Use ONLY the information in the CONTEXT to answer the question.
+You MUST rely ONLY on the information provided in the CONTEXT and QUESTION.
 
-Rules:
-- Do NOT copy the legal text verbatim.
-- Summarize the law in simple words.
+STRICT RULES:
+- Do NOT copy legal text verbatim.
+- Summarize laws in simple words.
 - Only mention laws that appear in the CONTEXT.
-- Copy the Act name and Section number exactly as written.
-- If the answer is not present in the CONTEXT, say:
-"No authoritative legal provision found in the provided material."
-Return the answer in EXACTLY this format:
+- Copy Act names and Section numbers EXACTLY as written in the CONTEXT.
+- Do NOT invent or guess any law, section, or precedent.
+- Do NOT assume, modify, or add ANY facts beyond what is explicitly stated in the QUESTION.
+- If the CONTEXT does NOT clearly support a law or section, say:
+  "No authoritative legal provision found in the provided material."
+- If uncertain, prefer saying "Insufficient information" rather than guessing.
 
-Legal Issue: <short description>
+Return output in valid JSON format with keys:
+- Legal Issue: <one-line description of the core legal problem>
+- Applicable Law: <Act name – Section number (ONLY if clearly present in CONTEXT, otherwise write "Not found in context")>
+- Analysis:
+    - Apply ONLY the given facts (do NOT add or change facts)
+    - Clearly connect facts → law → conclusion
+    - Keep reasoning simple, logical, and grounded
+- Ethical Consideration:
+    - Briefly discuss fairness, rights, or misuse of trust if relevant
+    - If truly not applicable, write "Not significant"
+- Final Judgment:
+    - Give a clear outcome (e.g., liable / not liable / constitutional / not constitutional)
+    - If CONTEXT is insufficient, write "Cannot be determined from context"
+- Confidence:
+    - High → Law + facts clearly supported by CONTEXT
+    - Medium → Partial support
+    - Low → Weak or missing support
 
-Applicable Law: <Act name – Section number>
+Return ONLY valid JSON in ONE LINE.
 
-Legal Position: <brief explanation of the law in simple words>
+Do NOT include:
+- explanations
+- markdown (no ```json)
+- extra text
+- line breaks inside JSON
+
+If unsure about law, write:
+"Applicable Law": "Not found in context"
+
+Keep output under 120 words.
 
 CONTEXT:
 {context}
@@ -59,9 +86,10 @@ ANSWER:
     output = model.generate(
         **inputs,
         max_new_tokens=200,
+        temperature=0.2,
         do_sample=False,
         repetition_penalty=1.2,
-        # eos_token_id=tokenizer.eos_token_id,
+        eos_token_id=tokenizer.eos_token_id,
         # pad_token_id=tokenizer.eos_token_id
     )
     generated_tokens = output[0]
