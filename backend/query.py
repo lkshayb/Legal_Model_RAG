@@ -57,7 +57,7 @@ def extract_fields(output):
             "confidence": data.get("Confidence", "")
         }
     except:
-        # fallback/eHandleing
+        # fallback/  Handleing
         return {
             "legal_issue": "",
             "law": "",
@@ -104,7 +104,7 @@ def run_evaluation():
         except Exception as e:
             print(f"Error in {case['id']}: {e}")
 
-    print("\n✅ Evaluation complete. Saved to legal_eval_results.csv")
+    print("\nEvaluation complete. Saved to legal_eval_results.csv")
 
 
 if __name__ == "__main__":

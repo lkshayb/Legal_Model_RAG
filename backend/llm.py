@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 #Using phi-2 from microsoft as it is a light weight model and can be used on low end GPUs
-MODEL_ID = "Qwen/Qwen2.5-3B-Instruct"
+MODEL_ID = "microsoft/phi-2"
 
 #Configuration for the quantization of the model for my GPU level
 bnb_config = BitsAndBytesConfig(
@@ -35,7 +35,7 @@ Rules:
 
 Output:
 - ONE LINE ONLY
-- ONLY the final judgment (e.g., "Liable under IPC 378", "Not liable", "Constitutional", "Not constitutional", or "Insufficient information")
+- Give final judgement with the act under which you are making the decisions
 
 Do NOT output anything else.
 
