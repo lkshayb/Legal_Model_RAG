@@ -4,13 +4,13 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 #Using phi-2 from microsoft as it is a light weight model and can be used on low end GPUs
 MODEL_ID = "microsoft/phi-2"
 
-#Configuration for the quantization of the model for my GPU level
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_compute_dtype=torch.float16,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4"
-)
+# #Configuration for the quantization of the model for my GPU level
+# bnb_config = BitsAndBytesConfig(
+#     load_in_4bit=True,
+#     bnb_4bit_compute_dtype=torch.float16,
+#     bnb_4bit_use_double_quant=True,
+#     bnb_4bit_quant_type="nf4"
+# )
 
 #tokenizer to convert txt into tokens(using autotokenizer here)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
@@ -18,7 +18,7 @@ tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
 #Loading the model locally
 model = AutoModelForCausalLM.from_pretrained(
     MODEL_ID,
-    quantization_config=bnb_config,
+    torch_dtype=torch.float16,
     device_map="auto"
 )
 
