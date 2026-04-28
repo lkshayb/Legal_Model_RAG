@@ -35,7 +35,7 @@ Rules:
 
 Output:
 - ONE LINE ONLY
-- Give final judgement with the act under which you are making the decisions
+- Give final judgement with the act under which you are making the decisions, also mention subparts if required
 
 Do NOT output anything else.
 
@@ -53,12 +53,18 @@ ANSWER:
     #generate output with max 300 tokens to control length
     output = model.generate(
         **inputs,
-        max_new_tokens=200,
-        temperature=0.2,
+        max_new_tokens=20,
         do_sample=False,
         repetition_penalty=1.2,
         eos_token_id=tokenizer.eos_token_id,
         # pad_token_id=tokenizer.eos_token_id
     )
     generated_tokens = output[0]
-    return tokenizer.decode(generated_tokens, skip_special_tokens=True)
+    decoded = tokenizer.decode(generated_tokens, skip_special_tokens=True)
+
+    if "ANSWER:" in decoded:
+        response = decoded.split("ANSWER:")[-1].strip()
+    else:
+        response = decoded.strip()
+
+    return response
