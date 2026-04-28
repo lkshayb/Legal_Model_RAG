@@ -27,12 +27,11 @@ def askQuestion(query):
     context = retrieve_context(query)
     answer = generate_answer(context, query)
     return {
-        "context": context,
         "answer": answer
     }
 
 
-#for eval mode
+#EVALUATION MODE | RP ONLY
 
 
 def clean_output(output):
@@ -68,7 +67,6 @@ def extract_fields(output):
             "confidence": ""
         }
 
-#eval mode
 def run_evaluation():
     results = []
 
@@ -110,24 +108,23 @@ def run_evaluation():
 
 
 if __name__ == "__main__":
-    mode = input("Choose mode (chat / eval): ").strip().lower()
+    # mode = input("Choose mode (chat / eval): ").strip().lower()
 
-    if mode == "eval":
-        run_evaluation()
+    # if mode == "eval":
+    #     run_evaluation()
 
-    else:
-        while True:
-            query = input("\nAsk a legal question (or type 'exit'): ")
-            if query.lower() == "exit":
-                break
+   
+    while True:
+        query = input("\nAsk a legal question (or type 'exit'): ")
+        if query.lower() == "exit":
+            break
 
-            context = retrieve_context(query)
+        context = retrieve_context(query)
+        print("\n****Retrieved Context****\n")
+        print(context)
+        print("\n****End of Context****\n")
 
-            print("\n****Retrieved Context****\n")
-            print(context)
-            print("\n****End of Context****\n")
+        answer = generate_answer(context, query)
 
-            answer = generate_answer(context, query)
-
-            print("\nAnswer :")
-            print(answer)
+        print("\nAnswer :")
+        print(answer)
