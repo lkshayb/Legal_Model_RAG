@@ -50,10 +50,9 @@ ANSWER:
     #load tthe input into tokenizer
     inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
-    #generate output with max 300 tokens to control length
     output = model.generate(
         **inputs,
-        max_new_tokens=20,
+        max_new_tokens=50,
         do_sample=False,
         repetition_penalty=1.2,
         eos_token_id=tokenizer.eos_token_id,
@@ -64,7 +63,13 @@ ANSWER:
 
     if "ANSWER:" in decoded:
         response = decoded.split("ANSWER:")[-1].strip()
+        print("In b1 :",response)
     else:
         response = decoded.strip()
-
+        print("In b2 :",response)
+    for i in range(len(response) - 1, -1, -1):
+        if response[i] == ".":
+            response = response[:i+1]
+            print("corrected rsp:", response)
+            break
     return response
